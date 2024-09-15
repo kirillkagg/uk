@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конвертер валют</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 600px;
+        }
+
+        .converter {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+
+        .converter h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .converter input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        #result-left, #result-right {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        input[readonly] {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Конвертер из фунтов в рубли -->
+        <div class="converter">
+            <h2>Из £ в РУБЛИ</h2>
+            <input type="number" id="gbp-amount" placeholder="Введите сумму в фунтах" required>
+            <input type="number" id="rub-result-left" placeholder="Результат в рублях" readonly>
+        </div>
+
+        <!-- Конвертер из рублей в фунты -->
+        <div class="converter">
+            <h2>Из ₽ в ФУНТЫ</h2>
+            <input type="number" id="rub-amount" placeholder="Введите сумму в рублях" required>
+            <input type="number" id="gbp-result-right" placeholder="Результат в фунтах" readonly>
+        </div>
+    </div>
+
+    <script>
+        const gbpInput = document.getElementById('gbp-amount');
+        const rubResultLeft = document.getElementById('rub-result-left');
+
+        const rubInput = document.getElementById('rub-amount');
+        const gbpResultRight = document.getElementById('gbp-result-right');
+
+        // Функция для конвертации из фунтов в рубли
+        async function convertGbpToRub() {
+            const gbpAmount = gbpInput.value;
+
+            if (gbpAmount !== '') {
+                try {
+                    const response = await fetch('https://api.exchangerate-api.com/v4/latest/GBP');
+                    const data = await response.json();
+                    const rate = data.rates.RUB;
+                    rubResultLeft.value = (gbpAmount * rate).toFixed(2);
+                } catch (error) {
+                    rubResultLeft.value = 'Ошибка';
+                }
+            } else {
+                rubResultLeft.value = '';
+            }
+        }
+
+        // Функция для конвертации из рублей в фунты
+        async function convertRubToGbp() {
+            const rubAmount = rubInput.value;
+
+            if (rubAmount !== '') {
+                try {
+                    const response = await fetch('https://api.exchangerate-api.com/v4/latest/RUB');
+                    const data = await response.json();
+                    const rate = data.rates.GBP;
+                    gbpResultRight.value = (rubAmount * rate).toFixed(2);
+                } catch (error) {
+                    gbpResultRight.value = 'Ошибка';
+                }
+            } else {
+                gbpResultRight.value = '';
+            }
+        }
+
+        // События для автоматической конвертации
+        gbpInput.addEventListener('input', convertGbpToRub);
+        rubInput.addEventListener('input', convertRubToGbp);
+    </script>
+</body>
+</html>
